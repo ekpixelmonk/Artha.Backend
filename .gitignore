@@ -23,6 +23,8 @@ bld/
 [Ll]og/
 [Ll]ogs/
 .vs/
+.config/
+Properties/
 
 # .NET Core
 project.lock.json
@@ -53,3 +55,4 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+/src/Artha.Backend.WebApi/Artha.Backend.WebApi.csproj.user
