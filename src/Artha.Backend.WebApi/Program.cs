@@ -30,6 +30,8 @@ builder.Services.AddDbContext<ArthaDbContext>(options =>
 builder.Services.AddRepositories();
 builder.Services.AddServices();
 
+builder.Services.AddControllers();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -49,5 +51,7 @@ app.MapGet("/values", () =>
 })
 .WithName("GetValues")
 .WithOpenApi();
+
+app.MapControllers();
 
 app.Run();
