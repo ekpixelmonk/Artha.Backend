@@ -1,20 +1,21 @@
-using Artha.Backend.Persistence;
 using Artha.Backend.DependencyInjection;
+using Artha.Backend.Persistence;
 using Microsoft.EntityFrameworkCore;
+using NLog;
 using NLog.Web;
 
-var logger = NLogBuilder.ConfigureNLog("NLog.config").GetCurrentClassLogger();
+var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 try
 {
     logger.Debug("init main");
     var builder = WebApplication.CreateBuilder(args);
 
-    // Add NLog to ASP.NET Core
+    // Add NLog to ASP.NET Core  
     builder.Logging.ClearProviders();
     builder.Host.UseNLog();
 
-    // Add services to the container.
-    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+    // Add services to the container.  
+    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle  
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
@@ -28,14 +29,14 @@ try
         throw new InvalidOperationException("Database connection string is not configured.");
     }
 
-    // Register ArthaDbContext with SQL Server and specify migrations assembly
+    // Register ArthaDbContext with SQL Server and specify migrations assembly  
     builder.Services.AddDbContext<ArthaDbContext>(options =>
         options.UseSqlServer(connectionString, sqlOptions =>
             sqlOptions.MigrationsAssembly("Artha.Backend.Persistence")
         )
     );
 
-    // Register repositories and services
+    // Register repositories and services  
     builder.Services.AddRepositories();
     builder.Services.AddServices();
 
@@ -43,7 +44,7 @@ try
 
     var app = builder.Build();
 
-    // Configure the HTTP request pipeline.
+    // Configure the HTTP request pipeline.  
     if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
@@ -52,7 +53,7 @@ try
 
     app.UseHttpsRedirection();
 
-    // New 'values' endpoint returning an array of dummy strings
+    // New 'values' endpoint returning an array of dummy strings  
     app.MapGet("/values", () =>
     {
         var values = new[] { "Value1", "Value2", "Value3" };
@@ -67,11 +68,11 @@ try
 }
 catch (Exception ex)
 {
-    // NLog: catch setup errors
+    // NLog: catch setup errors  
     logger.Error(ex, "Stopped program because of exception");
     throw;
 }
 finally
 {
-    NLog.LogManager.Shutdown();
+    LogManager.Shutdown();
 }
