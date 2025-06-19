@@ -1,4 +1,5 @@
 using Artha.Backend.Persistence;
+using Artha.Backend.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +25,10 @@ builder.Services.AddDbContext<ArthaDbContext>(options =>
         sqlOptions.MigrationsAssembly("Artha.Backend.Persistence")
     )
 );
+
+// Register repositories and services
+builder.Services.AddRepositories();
+builder.Services.AddServices();
 
 var app = builder.Build();
 
