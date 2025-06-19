@@ -21,8 +21,4 @@
     <ProjectReference Include="..\Artha.Backend.Domain.Contract\Artha.Backend.Domain.Contract.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="EntityConfiguration\" />
-  </ItemGroup>
-
 </Project>

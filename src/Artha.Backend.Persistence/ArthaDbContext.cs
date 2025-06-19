@@ -8,6 +8,7 @@ namespace Artha.Backend.Persistence
         public ArthaDbContext(DbContextOptions<ArthaDbContext> options) : base(options) { }
 
         public DbSet<ZerodhaConfig> ZerodhaConfig { get; set; }
+        public DbSet<ZerodhaTradeableInstrumentEntity> ZerodhaTradeableInstruments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -20,6 +21,9 @@ namespace Artha.Backend.Persistence
             modelBuilder.Entity<ZerodhaConfig>()
                 .Property(z => z.ID)
                 .HasDefaultValue(1);
+
+            // Apply configuration for ZerodhaTradeableInstrumentEntity
+            modelBuilder.ApplyConfiguration(new EntityConfiguration.ZerodhaTradeableInstrumentConfiguration());
         }
     }
 }
