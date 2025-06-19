@@ -1,3 +1,6 @@
+using Artha.Backend.Persistence;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -14,6 +17,13 @@ if (string.IsNullOrWhiteSpace(connectionString))
 {
     throw new InvalidOperationException("Database connection string is not configured.");
 }
+
+// Register ArthaDbContext with SQL Server and specify migrations assembly
+builder.Services.AddDbContext<ArthaDbContext>(options =>
+    options.UseSqlServer(connectionString, sqlOptions =>
+        sqlOptions.MigrationsAssembly("Artha.Backend.Persistence")
+    )
+);
 
 var app = builder.Build();
 
