@@ -18,6 +18,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Artha.Backend.Domain.Entity\Artha.Backend.Domain.Entity.csproj" />
+    <ProjectReference Include="..\Artha.Backend.Domain.Contract\Artha.Backend.Domain.Contract.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="EntityConfiguration\" />
   </ItemGroup>
 
 </Project>
