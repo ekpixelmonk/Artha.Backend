@@ -20,6 +20,7 @@ namespace Artha.Backend.DependencyInjection
             // Register ZerodhaConfig services
             services.AddScoped<IZerodhaConfigService, ZerodhaConfigService>();
             services.AddScoped<IZerodhaTradeableInstrumentService, ZerodhaTradeableInstrumentService>();
+            services.AddScoped<IZerodhaHoldingsService, ZerodhaHoldingsService>();
             // ...register other services here as needed
         }
 
@@ -31,6 +32,7 @@ namespace Artha.Backend.DependencyInjection
         {
             services.AddScoped<IZerodhaConfigRepository, ZerodhaConfigRepository>();
             services.AddScoped<IZerodhaTradeableInstrumentRepository, ZerodhaTradeableInstrumentRepository>();
+            services.AddScoped<IZerodhaHoldingsRepository, ZerodhaHoldingsRepository>();
             // ...register other repositories here as needed
         }
     }
