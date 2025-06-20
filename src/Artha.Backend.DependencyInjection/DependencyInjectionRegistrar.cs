@@ -29,6 +29,7 @@ namespace Artha.Backend.DependencyInjection
         public static void AddRepositories(this IServiceCollection services)
         {
             services.AddScoped<IZerodhaConfigRepository, ZerodhaConfigRepository>();
+            services.AddScoped<IZerodhaTradeableInstrumentRepository, ZerodhaTradeableInstrumentRepository>();
             // ...register other repositories here as needed
         }
     }
