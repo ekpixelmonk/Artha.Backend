@@ -50,5 +50,19 @@ namespace Artha.Backend.Persistence.Repository
                 throw;
             }
         }
+
+        public async Task<ZerodhaTradeableInstrumentEntity?> GetInstrumentByTradingSymbolAndExchangeAsync(string tradingsymbol, string exchange)
+        {
+            try
+            {
+                return await _context.ZerodhaTradeableInstruments
+                    .FirstOrDefaultAsync(x => x.tradingsymbol == tradingsymbol && x.exchange == exchange);
+            }
+            catch (Exception)
+            {
+                // Rethrow the exception to be handled by the calling service
+                throw;
+            }
+        }
     }
 }

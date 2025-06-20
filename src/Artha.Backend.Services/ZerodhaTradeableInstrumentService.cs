@@ -84,5 +84,21 @@ namespace Artha.Backend.Services
                 throw;
             }
         }
+
+        public async Task<ZerodhaTradeableInstrumentDto?> GetInstrumentByTradingSymbolAndExchangeAsync(string tradingsymbol, string exchange)
+        {
+            try
+            {
+                var entity = await _repository.GetInstrumentByTradingSymbolAndExchangeAsync(tradingsymbol, exchange);
+                if (entity == null)
+                    return null;
+                return Mapper.ZerodhaTradeableInstrumentMapper.MapToDto(entity);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching instrument by tradingsymbol and exchange");
+                throw;
+            }
+        }
     }
 }
