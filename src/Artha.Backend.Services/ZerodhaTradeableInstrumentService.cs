@@ -2,9 +2,17 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 using Artha.Backend.Services.Interface;
 using Artha.Backend.Shared.Dto;
 using Microsoft.Extensions.Logging;
+using CsvHelper;
+using Artha.Backend.Services.Mapper;
+using Artha.Backend.Domain.Contract.Interface;
+using Artha.Backend.Domain.Entity;
 
 namespace Artha.Backend.Services
 {
@@ -16,15 +24,18 @@ namespace Artha.Backend.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IZerodhaConfigService _zerodhaConfigService;
         private readonly ILogger<ZerodhaTradeableInstrumentService> _logger;
+        private readonly IZerodhaTradeableInstrumentRepository _repository;
 
         public ZerodhaTradeableInstrumentService(
             IHttpClientFactory httpClientFactory,
             IZerodhaConfigService zerodhaConfigService,
-            ILogger<ZerodhaTradeableInstrumentService> logger)
+            ILogger<ZerodhaTradeableInstrumentService> logger,
+            IZerodhaTradeableInstrumentRepository repository)
         {
             _httpClientFactory = httpClientFactory;
             _zerodhaConfigService = zerodhaConfigService;
             _logger = logger;
+            _repository = repository;
         }
 
         public async Task<string> InsertZerodhaTradeableInstrumentsAsync()
@@ -48,9 +59,24 @@ namespace Artha.Backend.Services
                 var response = await client.SendAsync(request);
                 response.EnsureSuccessStatusCode();
 
-                var result = await response.Content.ReadAsStringAsync();
-                // For now, just return a message indicating success in fetching data
-                return "Fetched instruments data successfully.";
+                var csvContent = await response.Content.ReadAsStringAsync();
+
+                // Parse CSV to List<ZerodhaTradeableInstrumentDto> using CsvHelper and the custom mapper
+                List<ZerodhaTradeableInstrumentDto> instruments;
+                using (var reader = new StringReader(csvContent))
+                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                {
+                    ZerodhaTradeableInstrumentMapper.RegisterCsvMap(csv);
+                    instruments = csv.GetRecords<ZerodhaTradeableInstrumentDto>().ToList();
+                }
+
+                // Map DTOs to Entities
+                var entities = instruments.Select(ZerodhaTradeableInstrumentMapper.MapToEntity).ToList();
+
+                // Save to DB
+                await _repository.CreateAsync(entities);
+
+                return $"Fetched, parsed, and saved {entities.Count} instruments successfully.";
             }
             catch (Exception ex)
             {

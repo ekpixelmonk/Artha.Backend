@@ -38,6 +38,8 @@ namespace Artha.Backend.Persistence.Repository
         {
             try
             {
+                // Truncate the table before inserting new data
+                await _context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE [ZerodhaTradeableInstruments]");
                 _context.ZerodhaTradeableInstruments.AddRange(entities);
                 await _context.SaveChangesAsync();
                 return entities;
