@@ -10,6 +10,7 @@ namespace Artha.Backend.Persistence
         public DbSet<ZerodhaConfig> ZerodhaConfig { get; set; }
         public DbSet<ZerodhaTradeableInstrumentEntity> ZerodhaTradeableInstruments { get; set; }
         public DbSet<ZerodhaHoldingsEntity> ZerodhaHoldings { get; set; }
+        public DbSet<TradeableEtfEntity> TradeableEtfs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,6 +28,8 @@ namespace Artha.Backend.Persistence
             modelBuilder.ApplyConfiguration(new EntityConfiguration.ZerodhaTradeableInstrumentConfiguration());
             // Apply configuration for ZerodhaHoldingsEntity
             modelBuilder.ApplyConfiguration(new EntityConfiguration.ZerodhaHoldingsConfiguration());
+            // Apply configuration for TradeableEtfEntity
+            modelBuilder.ApplyConfiguration(new EntityConfiguration.TradeableEtfConfiguration());
         }
     }
 }
