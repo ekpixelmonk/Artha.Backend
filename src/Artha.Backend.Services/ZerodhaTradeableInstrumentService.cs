@@ -100,5 +100,18 @@ namespace Artha.Backend.Services
                 throw;
             }
         }
+
+        public async Task<string?> GetInstrumentTokenByTradingSymbolAndExchangeAsync(string tradingsymbol, string exchange)
+        {
+            try
+            {
+                return await _repository.GetInstrumentTokenByTradingSymbolAndExchangeAsync(tradingsymbol, exchange);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching instrument_token for tradingsymbol: {tradingsymbol}, exchange: {exchange}", tradingsymbol, exchange);
+                throw;
+            }
+        }
     }
 }

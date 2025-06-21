@@ -21,5 +21,13 @@ namespace Artha.Backend.Services.Interface
         /// <param name="exchange">The exchange of the instrument.</param>
         /// <returns>The matching ZerodhaTradeableInstrumentDto if found; otherwise, null.</returns>
         Task<ZerodhaTradeableInstrumentDto?> GetInstrumentByTradingSymbolAndExchangeAsync(string tradingsymbol, string exchange);
+
+        /// <summary>
+        /// Gets the instrument_token for a given tradingsymbol and exchange.
+        /// </summary>
+        /// <param name="tradingsymbol">The trading symbol of the instrument.</param>
+        /// <param name="exchange">The exchange of the instrument.</param>
+        /// <returns>The instrument_token if found; otherwise, null.</returns>
+        Task<string?> GetInstrumentTokenByTradingSymbolAndExchangeAsync(string tradingsymbol, string exchange);
     }
 }
