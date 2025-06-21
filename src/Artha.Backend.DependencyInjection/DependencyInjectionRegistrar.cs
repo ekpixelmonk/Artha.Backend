@@ -33,6 +33,7 @@ namespace Artha.Backend.DependencyInjection
             services.AddScoped<IZerodhaConfigRepository, ZerodhaConfigRepository>();
             services.AddScoped<IZerodhaTradeableInstrumentRepository, ZerodhaTradeableInstrumentRepository>();
             services.AddScoped<IZerodhaHoldingsRepository, ZerodhaHoldingsRepository>();
+            services.AddScoped<ITradeableEtfRepository, TradeableEtfRepository>();
             // ...register other repositories here as needed
         }
     }
