@@ -58,5 +58,17 @@ namespace Artha.Backend.Persistence.Repository
                 throw;
             }
         }
+
+        public async Task<List<TradeableEtfEntity>> GetAllTradeableEtfsAsync()
+        {
+            try
+            {
+                return await _context.TradeableEtfs.ToListAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

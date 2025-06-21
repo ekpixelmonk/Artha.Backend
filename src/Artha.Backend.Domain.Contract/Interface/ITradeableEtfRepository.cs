@@ -30,5 +30,11 @@ namespace Artha.Backend.Domain.Contract.Interface
         /// <param name="exchange">The exchange of the ETF.</param>
         /// <returns>The matching TradeableEtfEntity if found; otherwise, null.</returns>
         Task<TradeableEtfEntity?> GetEtfBySymbolAndExchangeAsync(string symbol, string exchange);
+
+        /// <summary>
+        /// Gets all TradeableEtfEntity records from the database.
+        /// </summary>
+        /// <returns>All TradeableEtfEntity records.</returns>
+        Task<List<TradeableEtfEntity>> GetAllTradeableEtfsAsync();
     }
 }
