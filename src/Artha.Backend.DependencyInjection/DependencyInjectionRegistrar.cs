@@ -23,6 +23,7 @@ namespace Artha.Backend.DependencyInjection
             services.AddScoped<IZerodhaHoldingsService, ZerodhaHoldingsService>();
             services.AddScoped<ITradeableEtfService, TradeableEtfService>();
             services.AddScoped<IHistoricalCandleDataService, HistoricalCandleDataService>();
+            services.AddSingleton<IKiteSessionService, KiteSessionService>();
             // ...register other services here as needed
         }
 

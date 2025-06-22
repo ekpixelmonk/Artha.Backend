@@ -1,9 +1,9 @@
 using System;
-using System.Net.Http;
-using System.Net.Http.Headers;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Artha.Backend.Services.Interface;
+using KiteConnect;
 
 namespace Artha.Backend.Services
 {
@@ -12,17 +12,14 @@ namespace Artha.Backend.Services
     /// </summary>
     public class ZerodhaHoldingsService : IZerodhaHoldingsService
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IZerodhaConfigService _zerodhaConfigService;
+        private readonly IKiteSessionService _kiteSessionService;
         private readonly ILogger<ZerodhaHoldingsService> _logger;
 
         public ZerodhaHoldingsService(
-            IHttpClientFactory httpClientFactory,
-            IZerodhaConfigService zerodhaConfigService,
+            IKiteSessionService kiteSessionService,
             ILogger<ZerodhaHoldingsService> logger)
         {
-            _httpClientFactory = httpClientFactory;
-            _zerodhaConfigService = zerodhaConfigService;
+            _kiteSessionService = kiteSessionService;
             _logger = logger;
         }
 
@@ -30,32 +27,32 @@ namespace Artha.Backend.Services
         {
             try
             {
-                // Fetch API key and access token from ZerodhaConfigService
-                var config = await _zerodhaConfigService.GetZerodhaConfigAsync();
-                if (config == null)
-                    throw new Exception("Zerodha config not found");
+                var kite = _kiteSessionService.Kite;
 
-                var apiKey = config.APIKey;
-                var accessToken = config.AccessToken;
+                if (kite == null)
+                {
+                    _logger.LogError("Kite session is not initialized after session generation.");
+                    return "Kite session is not initialized.";
+                }
 
-                var client = _httpClientFactory.CreateClient();
-                var request = new HttpRequestMessage(HttpMethod.Get, "https://api.kite.trade/portfolio/holdings");
-                request.Headers.Add("X-Kite-Version", "3");
-                request.Headers.Authorization = new AuthenticationHeaderValue("token", $"{apiKey}:{accessToken}");
+                _logger.LogInformation("Fetching holdings using Kite session.");
+                List<Holding> holdings = kite.GetHoldings();
+                
+                if (holdings == null || holdings.Count == 0)
+                {
+                    _logger.LogWarning("No holdings found for the user.");
+                    return "No holdings found.";
+                }
 
-                _logger.LogInformation("Starting fetch of Zerodha holdings from external API.");
-                var response = await client.SendAsync(request);
-                response.EnsureSuccessStatusCode();
+                // TODO: Map Kite Holding to ZerodhaHoldingsDto or Entity as needed
+                // Example: var dtos = holdings.Select(MapToDto).ToList();
 
-                var result = await response.Content.ReadAsStringAsync();
-                _logger.LogInformation("Successfully fetched Zerodha holdings data from external API.");
-
-                // Further processing will be implemented later
-                return "Fetched Zerodha holdings data successfully.";
+                _logger.LogInformation("Fetched {Count} holdings from Kite.", holdings.Count);
+                return $"Fetched {holdings.Count} holdings from Kite.";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching Zerodha holdings");
+                _logger.LogError(ex, "Error fetching Zerodha holdings from Kite session");
                 return $"Failed to fetch Zerodha holdings: {ex.Message}";
             }
         }

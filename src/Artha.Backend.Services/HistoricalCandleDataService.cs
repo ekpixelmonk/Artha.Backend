@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using Artha.Backend.Services.Interface;
 using Artha.Backend.Shared.Dto;
+using KiteConnect;
 
 namespace Artha.Backend.Services
 {
@@ -19,17 +17,20 @@ namespace Artha.Backend.Services
         private readonly IZerodhaConfigService _zerodhaConfigService;
         private readonly IZerodhaTradeableInstrumentService _instrumentService;
         private readonly ILogger<HistoricalCandleDataService> _logger;
+        private readonly IKiteSessionService _kiteSessionService;
 
         public HistoricalCandleDataService(
             IHttpClientFactory httpClientFactory,
             IZerodhaConfigService zerodhaConfigService,
             IZerodhaTradeableInstrumentService instrumentService,
-            ILogger<HistoricalCandleDataService> logger)
+            ILogger<HistoricalCandleDataService> logger,
+            IKiteSessionService kiteSessionService)
         {
             _httpClientFactory = httpClientFactory;
             _zerodhaConfigService = zerodhaConfigService;
             _instrumentService = instrumentService;
             _logger = logger;
+            _kiteSessionService = kiteSessionService;
         }
 
         public async Task<List<HistoricalCandleDataDto>> GetHistoricalCandleDataAsync(string symbol, string exchange, string from, string to)
@@ -44,42 +45,48 @@ namespace Artha.Backend.Services
                     return new List<HistoricalCandleDataDto>();
                 }
 
-                var config = await _zerodhaConfigService.GetZerodhaConfigAsync();
-                if (config == null)
-                    throw new Exception("Zerodha config not found");
-
-                var apiKey = config.APIKey;
-                var accessToken = config.AccessToken;
-
-                var url = $"https://api.kite.trade/instruments/historical/{instrumentToken}/daily?from={from}&to={to}";
-                var client = _httpClientFactory.CreateClient();
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
-                request.Headers.Add("X-Kite-Version", "3");
-                request.Headers.Authorization = new AuthenticationHeaderValue("token", $"{apiKey}:{accessToken}");
-
-                _logger.LogInformation("Calling external API for historical candle data: {url}", url);
-                var response = await client.SendAsync(request);
-                response.EnsureSuccessStatusCode();
-
-                var json = await response.Content.ReadAsStringAsync();
-                var jObj = JObject.Parse(json);
-                var candles = jObj["data"]?["candles"];
-                var result = new List<HistoricalCandleDataDto>();
-                if (candles != null)
+                // Parse from/to dates
+                if (!DateTime.TryParse(from, out var fromDate))
                 {
-                    foreach (var candle in candles)
+                    _logger.LogError("Invalid 'from' date: {from}", from);
+                    throw new ArgumentException("Invalid 'from' date format.");
+                }
+                if (!DateTime.TryParse(to, out var toDate))
+                {
+                    _logger.LogError("Invalid 'to' date: {to}", to);
+                    throw new ArgumentException("Invalid 'to' date format.");
+                }
+
+                // Get Kite instance from KiteSessionService
+                //var kiteSessionService = _instrumentService as IKiteSessionService ?? throw new Exception("KiteSessionService not available");
+                var kite = _kiteSessionService.Kite;
+                if (kite == null)
+                {
+                    _logger.LogError("Kite session is not initialized.");
+                    throw new Exception("Kite session is not initialized.");
+                }
+
+                _logger.LogInformation("Fetching historical candle data from Kite for instrumentToken: {instrumentToken}", instrumentToken);
+                var historical = kite.GetHistoricalData(
+                    InstrumentToken: instrumentToken,
+                    FromDate: fromDate,
+                    ToDate: toDate,
+                    Interval: Constants.INTERVAL_DAY,
+                    Continuous: false
+                );
+
+                var result = new List<HistoricalCandleDataDto>();
+                foreach (var candle in historical)
+                {
+                    result.Add(new HistoricalCandleDataDto
                     {
-                        // candle: [timestamp, open, high, low, close, volume]
-                        result.Add(new HistoricalCandleDataDto
-                        {
-                            Timestamp = candle[0]?.ToString() ?? string.Empty,
-                            Open = candle[1]?.Value<decimal>() ?? 0,
-                            High = candle[2]?.Value<decimal>() ?? 0,
-                            Low = candle[3]?.Value<decimal>() ?? 0,
-                            Close = candle[4]?.Value<decimal>() ?? 0,
-                            Volume = candle[5]?.Value<int>() ?? 0
-                        });
-                    }
+                        Timestamp = candle.TimeStamp.ToString("o"),
+                        Open = candle.Open,
+                        High = candle.High,
+                        Low = candle.Low,
+                        Close = candle.Close,
+                        Volume = (int)candle.Volume
+                    });
                 }
                 _logger.LogInformation("Fetched {Count} historical candle records for symbol: {symbol}, exchange: {exchange}", result.Count, symbol, exchange);
                 return result;
