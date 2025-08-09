@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "P8VtvkZ4V8Q=",
+  "success": true,
+  "projectFilePath": "C:\\Repos\\Artha.Backend\\Artha.Backend.Gateway\\Artha.Backend.Gateway.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\enumu\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.6\\microsoft.aspnetcore.openapi.9.0.6.nupkg.sha512",
+    "C:\\Users\\enumu\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
