@@ -1,6 +1,0 @@
-@Module.Broker.API_HostAddress = http://localhost:5242
-
-GET {{Module.Broker.API_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
