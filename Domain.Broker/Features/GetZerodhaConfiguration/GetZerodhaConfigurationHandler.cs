@@ -16,7 +16,7 @@ public class GetZerodhaConfigurationHandler
     {
         var config = await _dbContext.ZerodhaConfigs
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.ID == request.Id);
+            .FirstOrDefaultAsync(c => c.UserId == request.UserId);
 
         if (config is null)
         {
@@ -27,7 +27,10 @@ public class GetZerodhaConfigurationHandler
         {
             Id = config.ID,
             APIKey = config.APIKey,
-            UserId = config.UserId
+            Secret = config.Secret,
+            UserId = config.UserId,
+            AccessToken = config.AccessToken,
+            PublicToken = config.PublicToken
         };
     }
 }

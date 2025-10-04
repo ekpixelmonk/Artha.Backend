@@ -9,21 +9,11 @@ public static class BrokerEndpoints
 {
     public static IEndpointRouteBuilder MapBrokerEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/broker").WithTags("Broker");
+        // create a route group with versioned prefix
+        var group = app.MapGroup("/api/v1/broker").WithTags("Broker");
 
-        group.MapGet("/configuration/zerodha/{id:int}", // Route can be more specific now
-            async (int id, GetZerodhaConfigurationHandler handler) =>
-            {
-                var request = new GetZerodhaConfigurationRequest { Id = id };
-                var result = await handler.HandleAsync(request);
-
-                return result is not null
-                    ? Results.Ok(result)
-                    : Results.NotFound();
-            })
-            .WithName("GetZerodhaConfiguration") // Updated name for OpenAPI
-            .Produces<GetZerodhaConfigurationResponse>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status404NotFound);
+        //Register all broker-related endpoints here
+        group.MapGetZerodhaConfigurationEndpoint();
 
         return app;
     }
