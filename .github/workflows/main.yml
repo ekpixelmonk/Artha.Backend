@@ -1,0 +1,20 @@
+name: Custom IITM Workflow
+
+# Specifies the trigger for this action. It will run on pushes to the 'main' branch.
+on:
+  push:
+    branches: [ main ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Defines the jobs to be run.
+jobs:
+  test:
+    # Specifies the runner environment. 'ubuntu-latest' is a common choice.
+    runs-on: ubuntu-latest
+    
+    # Contains the sequence of tasks for the 'test' job.
+    steps:
+      # This is the specific step you requested.
+      - name: 21f3001057@ds.study.iitm.ac.in
+        run: echo "Hello, world!"
